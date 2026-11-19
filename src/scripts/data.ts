@@ -30,7 +30,7 @@ export function makeRef() {
 }
 
 /** Sends a record to the client's Google Sheet (Apps Script web app). Resolves false when offline or when there is no endpoint. */
-export async function postLead(type: 'subscribe' | 'order' | 'booking', data: Record<string, unknown>) {
+export async function postLead(type: 'subscribe' | 'order' | 'booking' | 'issue', data: Record<string, unknown>) {
   const l = site.leads;
   if (!l?.url) return false;
   const body = JSON.stringify({ type, slug: site.slug, business: site.business, token: l.token, ...data });

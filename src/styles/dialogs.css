@@ -161,14 +161,36 @@ a.linkbtn { display: block; text-align: center; }
 .spark.s4 { top: 34%; right: 8%; background: var(--on-primary); animation-delay: -.5s; }
 .spark.s5 { bottom: 24%; left: 14%; width: .55rem; height: .55rem; animation-delay: -3s; }
 .spark.s6 { bottom: 26%; right: 12%; width: .45rem; height: .45rem; background: var(--on-primary); animation-delay: -1.5s; }
+/* "did your order go through?" box: light card, bold brand band on top, wobbling badge */
+.ask { --btn-bg: var(--primary); --btn-ink: var(--on-primary); width: min(23rem, calc(100% - 2rem)); max-height: 92svh; padding: 0; margin: auto; border: 0; border-radius: 1.75rem; overflow: auto; overscroll-behavior: contain; background: var(--bg); color: var(--ink); text-align: center; box-shadow: 0 10px 0 rgba(0, 0, 0, .18); }
+.ask[open] { display: block; animation: thanks-pop 420ms cubic-bezier(.34, 1.56, .64, 1); }
+.ask::backdrop { background: rgba(20, 12, 8, .6); animation: fade-in 240ms ease-out; }
+.ask-top { position: relative; height: 5.5rem; background: var(--primary); }
+.ask-badge { position: absolute; left: 50%; bottom: -2.2rem; display: grid; place-items: center; width: 4.6rem; height: 4.6rem; translate: -50% 0; border-radius: 50%; background: var(--accent); color: var(--on-accent); box-shadow: 0 5px 0 rgba(0, 0, 0, .18); animation: ask-wobble 2.6s ease-in-out infinite; }
+.ask [data-step] { display: grid; justify-items: center; gap: .7rem; padding: 2.9rem 1.4rem 1.4rem; }
+.ask [data-step][hidden] { display: none; }
+.ask h2 { margin: 0; font-size: 1.7rem; line-height: 1.1; text-wrap: balance; }
+.ask p { margin: 0; opacity: .88; }
+.ask small { opacity: .7; font-size: .82rem; text-wrap: balance; }
+.ask .linkbtn { padding: .45rem; }
+.ask .linkbtn.quiet { font-weight: 600; font-size: .88rem; opacity: .75; }
+.ask-btns { display: grid; gap: .6rem; width: 100%; margin-top: .3rem; }
+.ask .btn.alt { --btn-bg: var(--surface); --btn-ink: var(--ink); }
+.ask .chips-group { justify-content: center; margin: .2rem 0 0; }
+.ask .chip-radio span { min-height: 2.5rem; padding-inline: .85rem; font-size: .92rem; }
+.ask .field { width: 100%; margin-top: .2rem; text-align: left; }
+.ask .sched-hint { min-height: 0; }
+.ask .sched-hint:empty { display: none; }
+@keyframes ask-wobble { 0%, 100% { rotate: -7deg; } 50% { rotate: 7deg; } }
 @keyframes thanks-pop { from { opacity: 0; transform: scale(.85) translateY(1rem); } }
 @keyframes thanks-badge { from { transform: scale(0) rotate(-40deg); } }
 @keyframes thanks-bar { to { transform: scaleX(0); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .thanks[open], .thanks::backdrop, .thanks[open] .thanks-badge, .spark { animation: none; }
+  .thanks[open], .thanks::backdrop, .thanks[open] .thanks-badge, .spark, .ask[open], .ask::backdrop, .ask-badge { animation: none; }
   .thanks[open] .thanks-bar::after { animation-duration: 4.8s; }
   .sheet[open], .sheet::backdrop, .cal-grid, .sched-form, .cart-bar.bump .cart-open { animation: none; }
   .cart-bar { transition: none; }
   .spin-hint i { animation: none; }
 }
+

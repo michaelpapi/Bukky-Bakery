@@ -3,6 +3,8 @@
 // The list itself is built by src/scripts/cart.ts. Only rendered for checkout mode "whatsapp".
 import { config } from '../lib/site';
 const biz = config.business.name;
+// quick reasons the customer can tap if the order did not go through (they are emailed to the shop)
+const reasons = ['WhatsApp did not open', 'I do not have WhatsApp', 'The message would not send', 'I want to change my order', 'I have a question first', 'I changed my mind'];
 const L = config.labels;
 const fulfil = config.scheduler.fulfilment;
 ---
@@ -64,4 +66,56 @@ const fulfil = config.scheduler.fulfilment;
     <button type="button" class="btn" data-close>Back to the shop</button>
     <span class="thanks-bar" aria-hidden="true"></span>
   </div>
+</dialog>
+
+<dialog id="ask-dialog" class="ask" aria-labelledby="ask-title">
+  <div class="ask-top" aria-hidden="true">
+    <i class="spark s1"></i><i class="spark s2"></i><i class="spark s3"></i><i class="spark s4"></i><i class="spark s5"></i><i class="spark s6"></i>
+    <span class="ask-badge">
+      <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H11l-5 4v-4H4z" /><path d="M10 9.2a2 2 0 1 1 2.8 1.8c-.6.3-.8.6-.8 1.2" /><path d="M12 13.6v.1" /></svg>
+    </span>
+  </div>
+
+  <section data-step="ask">
+    <h2 id="ask-title">Did your order go through?</h2>
+    <p>Did you press <b>Send</b> on WhatsApp?</p>
+    <div class="ask-btns">
+      <button type="button" class="btn" data-yes>Yes, I sent it!</button>
+      <button type="button" class="btn alt" data-no>No, something went wrong</button>
+    </div>
+    <a class="linkbtn" data-retry href="#" target="_blank" rel="noopener">Not sent yet? Open WhatsApp again</a>
+    <button type="button" class="linkbtn quiet" data-cancel-ask>Cancel and start over</button>
+  </section>
+
+  <section data-step="why" hidden>
+    <h2>Oh no! What happened?</h2>
+    <fieldset class="chips-group">
+      <legend class="sr">Pick what happened</legend>
+      {reasons.map((r) => (
+        <label class="chip-radio"><input type="radio" class="sr" name="why" value={r} data-why-reason /><span>{r}</span></label>
+      ))}
+    </fieldset>
+    <label class="field"><span>Tell us more (optional)</span>
+      <textarea data-why-text rows="2" maxlength="300" placeholder="A few words are enough"></textarea>
+    </label>
+    <label class="field"><span>Phone or email (optional), so the shop can get back to you</span>
+      <input type="text" data-why-contact maxlength="80" placeholder="0803 000 0000 or you@email.com" />
+    </label>
+    <p class="sched-hint" data-why-hint role="status"></p>
+    <div class="ask-btns">
+      <button type="button" class="btn" data-why-send>Send to the shop</button>
+      <button type="button" class="linkbtn" data-why-back>Back</button>
+      <button type="button" class="linkbtn quiet" data-cancel-why>Cancel and start over</button>
+    </div>
+  </section>
+
+  <section data-step="sorry" hidden>
+    <h2>Sorry about that!</h2>
+    <p>We will attend to your concerns. Would you like to keep shopping?</p>
+    <div class="ask-btns">
+      <button type="button" class="btn" data-keep>Continue shopping</button>
+      <button type="button" class="btn alt" data-fresh>No, clear my cart</button>
+    </div>
+    <small>Continue keeps your cart as it is. Clearing it lets you start fresh.</small>
+  </section>
 </dialog>

@@ -26,16 +26,31 @@ export function set(id: string, q: number) {
   save(); subs.forEach((f) => f());
 }
 export const add = (id: string) => set(id, qty(id) + 1);
-export const clear = () => { for (const id of Object.keys(cart)) delete cart[id]; ref = ''; save(); subs.forEach((f) => f()); };
+export const clear = () => { for (const id of Object.keys(cart)) delete cart[id]; ref = ''; writePending(null); save(); subs.forEach((f) => f()); };
 export const onChange = (f: () => void) => { subs.add(f); return () => { subs.delete(f); }; };
 
 // who is ordering: remembered on this phone so repeat customers do not retype it
 const CKEY = `cust:${site.slug}`;
-const cust = { name: '', fulfil: 'pickup', address: '' };
+const cust = { name: '', fulfil: 'pickup', address: '', contact: '' };
 try { Object.assign(cust, JSON.parse(localStorage.getItem(CKEY) || '{}')); } catch { /* ignore */ }
 const saveCust = () => { try { localStorage.setItem(CKEY, JSON.stringify(cust)); } catch { /* ignore */ } };
 const isDelivery = () => cust.fulfil === 'delivery';
 const dateText = () => new Intl.DateTimeFormat(site.locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date());
+
+// An order is only counted once the customer says they sent it on WhatsApp. Until then it waits here, so it survives
+// a reload or the browser dropping the page while they are in WhatsApp.
+type Pending = { rec: ReturnType<typeof orderRecord>; href: string; at: number };
+const PKEY = `pend:${site.slug}`;
+let mem: Pending | null = null;
+function readPending(): Pending | null {
+  let p = mem;
+  if (!p) { try { p = JSON.parse(localStorage.getItem(PKEY) || 'null'); } catch { p = null; } }
+  return p && p.rec && Date.now() - p.at < 12 * 3600_000 ? p : null;   // older than 12 hours: forget it
+}
+function writePending(p: Pending | null) {
+  mem = p;
+  try { if (p) localStorage.setItem(PKEY, JSON.stringify(p)); else localStorage.removeItem(PKEY); } catch { /* ignore */ }
+}
 
 /** the WhatsApp message, laid out like an invoice (WhatsApp shows *text* as bold) */
 export function orderMessage(note: string) {
@@ -89,10 +104,6 @@ export function initCart() {
   const addrWrap = dlg.querySelector<HTMLElement>('[data-addrwrap]')!;
   const hint = dlg.querySelector<HTMLElement>('[data-hint]')!;
   const fulfilIn = [...dlg.querySelectorAll<HTMLInputElement>('[data-fulfil]')];
-  const thanks = document.getElementById('thanks-dialog') as HTMLDialogElement | null;
-  if (thanks) wireSheet(thanks);
-  let finishing = false;
-  let thanksTimer = 0;
   const L = site.labels;
   let lastCount = count();
 
@@ -162,29 +173,96 @@ export function initCart() {
   nameIn.addEventListener('input', () => { cust.name = nameIn.value; saveCust(); hint.textContent = ''; updateLink(); });
   addrIn.addEventListener('input', () => { cust.address = addrIn.value; saveCust(); hint.textContent = ''; updateLink(); });
   fulfilIn.forEach((r) => r.addEventListener('change', () => { if (r.checked) { cust.fulfil = r.value; saveCust(); syncFulfil(); updateLink(); } }));
-  // after the order is sent: empty the cart, say thank you, then take the customer back to the top of the page
+  // ---- after WhatsApp: ask whether the order was really sent ----
+  const ask = document.getElementById('ask-dialog') as HTMLDialogElement;
+  const q = <T extends HTMLElement>(sel: string) => ask.querySelector<T>(sel)!;
+  const step = (n: 'ask' | 'why' | 'sorry') => ask.querySelectorAll<HTMLElement>('[data-step]').forEach((s) => { s.hidden = s.dataset.step !== n; });
+  const retry = q<HTMLAnchorElement>('[data-retry]');
+  const whyText = q<HTMLTextAreaElement>('[data-why-text]');
+  const whyContact = q<HTMLInputElement>('[data-why-contact]');
+  const whyHint = q<HTMLElement>('[data-why-hint]');
+  const thanks = document.getElementById('thanks-dialog') as HTMLDialogElement | null;
+  if (thanks) wireSheet(thanks);
+  ask.addEventListener('cancel', (e) => e.preventDefault());                          // Esc must not skip the question
+  ask.addEventListener('close', () => document.documentElement.classList.remove('dlg'));
+  let thanksTimer = 0;
+
   const goHome = () => {
     clearTimeout(thanksTimer);
-    finishing = false;
     window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   };
   thanks?.addEventListener('close', goHome);
-  const finishOrder = () => {
-    clear();                                  // empties the cart and starts a fresh order reference
+  const tidy = () => {                                    // the page back to how it was at the start
     note.value = ''; hint.textContent = ''; hint.classList.remove('err');
     dlg.close();
-    document.querySelector<HTMLButtonElement>('.chip[data-filter=""]')?.click(); // product filter back to "All"
+    document.querySelector<HTMLButtonElement>('.chip[data-filter=""]')?.click();   // product filter back to "All"
+  };
+  const finishOrder = () => {                             // "yes, I sent it": empty the cart, say thank you, go to the top
+    clear(); tidy();
     if (!thanks) { goHome(); return; }
     openSheet(thanks);
     thanksTimer = window.setTimeout(() => thanks.close(), 4800);
   };
+
+  const cancelAll = () => { ask.close(); clear(); tidy(); goHome(); };   // "cancel": nothing is sent, the cart is wiped, back to the start
+
+  function openAsk() {
+    const p = readPending();
+    if (!p || ask.open) return;
+    if (count() === 0) { writePending(null); return; }
+    document.querySelectorAll<HTMLDialogElement>('dialog[open]').forEach((d) => d.close());
+    retry.href = p.href;
+    step('ask');
+    openSheet(ask);
+  }
+  // the customer is "away" while WhatsApp is in front; when the page is visible again, ask
+  let away = false;
+  const back = () => { if (away && document.visibilityState === 'visible') { away = false; openAsk(); } };
+  document.addEventListener('visibilitychange', () => { if (!readPending()) return; if (document.visibilityState === 'hidden') away = true; else back(); });
+  window.addEventListener('blur', () => { if (readPending()) away = true; });
+  window.addEventListener('focus', () => { if (readPending()) back(); });
+  window.addEventListener('pageshow', (e) => { if (e.persisted && readPending()) openAsk(); });
+  if (readPending()) window.setTimeout(openAsk, 900);     // the page was reloaded while they were in WhatsApp
+
+  retry.addEventListener('click', () => { away = true; });
+  q('[data-yes]').addEventListener('click', () => {
+    const p = readPending();
+    if (p && site.leads?.logOrders) postLead('order', p.rec);   // only now is the order counted and the owner emailed
+    writePending(null);
+    ask.close();
+    finishOrder();
+  });
+  q('[data-no]').addEventListener('click', () => { whyHint.textContent = ''; whyHint.classList.remove('err'); whyContact.value = whyContact.value || cust.contact; step('why'); });
+  const clearWhy = () => { whyHint.textContent = ''; whyHint.classList.remove('err'); };
+  [whyText, whyContact].forEach((el) => el.addEventListener('input', clearWhy));
+  ask.querySelectorAll('[data-why-reason]').forEach((el) => el.addEventListener('change', clearWhy));
+  q('[data-why-back]').addEventListener('click', () => step('ask'));
+  q('[data-why-send]').addEventListener('click', () => {
+    const reason = ask.querySelector<HTMLInputElement>('[data-why-reason]:checked')?.value || '';
+    const message = whyText.value.trim();
+    const contact = whyContact.value.trim();
+    const digits = contact.replace(/\D/g, '');
+    const fail = (t: string) => { whyHint.textContent = t; whyHint.classList.add('err'); };
+    if (!reason && message.length < 3) { fail('Please pick what happened or write a short note.'); return; }
+    if (contact && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact) && (digits.length < 7 || digits.length > 15)) { fail('That phone number or email does not look right. Fix it, or leave it empty.'); whyContact.focus(); return; }
+    cust.contact = contact; saveCust();
+    const rec = readPending()?.rec ?? orderRecord('');
+    postLead('issue', { ref: rec.ref, customer: rec.customer, fulfilment: rec.fulfilment, address: rec.address, items: rec.items, total: rec.total, contact, reason, message, at: new Date().toISOString() });
+    writePending(null);
+    step('sorry');
+  });
+  q('[data-cancel-ask]').addEventListener('click', cancelAll);
+  q('[data-cancel-why]').addEventListener('click', cancelAll);
+  q('[data-keep]').addEventListener('click', () => ask.close());       // keep shopping: the cart stays as it is
+  q('[data-fresh]').addEventListener('click', cancelAll);   // start fresh: cart wiped
+
   send.addEventListener('click', (e) => {
     if (count() === 0) { e.preventDefault(); return; }
     if (cust.name.trim().length < 2) { e.preventDefault(); hint.textContent = 'Please add your name for the invoice.'; hint.classList.add('err'); nameIn.focus(); return; }
     if (isDelivery() && cust.address.trim().length < 3) { e.preventDefault(); hint.textContent = 'Please add your delivery address or area.'; hint.classList.add('err'); addrIn.focus(); return; }
-    hint.classList.remove('err'); hint.textContent = 'WhatsApp is opening. Send the message there to place your order.';
-    if (site.leads?.logOrders) postLead('order', orderRecord(note.value)); // same ref twice = same order; the Sheet script skips repeats
-    if (!finishing) { finishing = true; window.setTimeout(finishOrder, 700); } // wait a moment so WhatsApp opens with the full message first
+    hint.classList.remove('err'); hint.textContent = 'WhatsApp is opening. Send the message there, then come back here.';
+    writePending({ rec: orderRecord(note.value), href: send.href, at: Date.now() }); // not counted yet: we ask when they are back
+    away = true;
   });
 
   document.addEventListener('click', (e) => {
@@ -198,3 +276,4 @@ export function initCart() {
   onChange(render);
   render();
 }
+

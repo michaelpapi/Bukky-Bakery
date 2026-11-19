@@ -73,6 +73,24 @@ const booking = { type: 'booking', ref: 'BB-ABCD', date: '2026-11-27', dateText:
 ok('booking saved + emailed', w.post(booking) === 'ok' && w.tabs['Date requests'].rows.length === 2 && w.mails.length === 2 && /Booking request BB-ABCD/.test(w.mails[1].subject) && /BOOKING REQUEST/.test(w.mails[1].htmlBody) && w.files.length === 2);
 ok('booking row has delivery + name', w.tabs['Date requests'].rows[1][4] === 'Delivery' && w.tabs['Date requests'].rows[1][5] === 'Ada');
 
+const issue = { type: 'issue', ref: 'BB-NOPE', customer: 'Chidi', fulfilment: 'delivery', address: '9 Allen Ave, Ikeja', contact: '0803 111 2222', reason: 'WhatsApp did not open', message: 'My <i>phone</i> froze', items: [{ name: 'Vanilla Celebration Cake', option: '8-inch', qty: 1, price: 25000 }] };
+const mailsBefore = w.mails.length;
+ok('order problem saved in its own tab', w.post(issue) === 'ok' && w.tabs['Order issues'].rows.length === 2);
+ok('order problem row has contact, reason, message', w.tabs['Order issues'].rows[1][3] === '0803 111 2222' && w.tabs['Order issues'].rows[1][4] === 'WhatsApp did not open' && /froze/.test(w.tabs['Order issues'].rows[1][5]));
+ok('order problem emails the owner (no PDF) with the items and a follow-up note', w.mails.length === mailsBefore + 1 && /Order problem BB-NOPE/.test(w.mails.at(-1).subject) && !w.mails.at(-1).attachments && /NOT confirmed/.test(w.mails.at(-1).htmlBody) && /Vanilla Celebration Cake \(8-inch\)/.test(w.mails.at(-1).htmlBody) && /0803 111 2222/.test(w.mails.at(-1).htmlBody));
+ok('order problem text is HTML-escaped', !/<i>phone<\/i>/.test(w.mails.at(-1).htmlBody) && /&lt;i&gt;/.test(w.mails.at(-1).htmlBody));
+w.post(issue);
+ok('same problem twice is saved and emailed once', w.tabs['Order issues'].rows.length === 2 && w.mails.length === mailsBefore + 1);
+w.post({ ...issue, ref: 'BB-X3', reason: '', message: '' });
+ok('problem without any reason is not saved', w.tabs['Order issues'].rows.length === 2);
+w.post({ ...issue, ref: 'BB-X1', contact: '' });
+ok('contact is optional: saved as "Not given", and the email tells the owner to watch WhatsApp', w.tabs['Order issues'].rows.length === 3 && w.tabs['Order issues'].rows[2][3] === 'Not given' && /left no phone or email/.test(w.mails.at(-1).htmlBody));
+w.post({ ...issue, ref: 'BB-X2', contact: 'hello' });
+ok('a contact that is not a phone or email is replaced by "Not given"', w.tabs['Order issues'].rows[3][3] === 'Not given');
+w.post({ ...issue, ref: 'BB-OK2', contact: 'chidi@example.com', reason: '', message: 'I want to change my order' });
+ok('email contact and free-text-only reason are accepted', w.tabs['Order issues'].rows.length === 5 && w.tabs['Order issues'].rows[4][3] === 'chidi@example.com');
+w.mails.length = mailsBefore;
+
 ok('unknown type ignored', w.post({ type: 'hack' }) === 'ignored');
 ok('garbage body does not crash', w.post('not json') === 'error');
 w.api.CONFIG.TOKEN = 'secret';
