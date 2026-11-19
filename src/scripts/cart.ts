@@ -89,6 +89,10 @@ export function initCart() {
   const addrWrap = dlg.querySelector<HTMLElement>('[data-addrwrap]')!;
   const hint = dlg.querySelector<HTMLElement>('[data-hint]')!;
   const fulfilIn = [...dlg.querySelectorAll<HTMLInputElement>('[data-fulfil]')];
+  const thanks = document.getElementById('thanks-dialog') as HTMLDialogElement | null;
+  if (thanks) wireSheet(thanks);
+  let finishing = false;
+  let thanksTimer = 0;
   const L = site.labels;
   let lastCount = count();
 
@@ -158,12 +162,29 @@ export function initCart() {
   nameIn.addEventListener('input', () => { cust.name = nameIn.value; saveCust(); hint.textContent = ''; updateLink(); });
   addrIn.addEventListener('input', () => { cust.address = addrIn.value; saveCust(); hint.textContent = ''; updateLink(); });
   fulfilIn.forEach((r) => r.addEventListener('change', () => { if (r.checked) { cust.fulfil = r.value; saveCust(); syncFulfil(); updateLink(); } }));
+  // after the order is sent: empty the cart, say thank you, then take the customer back to the top of the page
+  const goHome = () => {
+    clearTimeout(thanksTimer);
+    finishing = false;
+    window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  };
+  thanks?.addEventListener('close', goHome);
+  const finishOrder = () => {
+    clear();                                  // empties the cart and starts a fresh order reference
+    note.value = ''; hint.textContent = ''; hint.classList.remove('err');
+    dlg.close();
+    document.querySelector<HTMLButtonElement>('.chip[data-filter=""]')?.click(); // product filter back to "All"
+    if (!thanks) { goHome(); return; }
+    openSheet(thanks);
+    thanksTimer = window.setTimeout(() => thanks.close(), 4800);
+  };
   send.addEventListener('click', (e) => {
     if (count() === 0) { e.preventDefault(); return; }
     if (cust.name.trim().length < 2) { e.preventDefault(); hint.textContent = 'Please add your name for the invoice.'; hint.classList.add('err'); nameIn.focus(); return; }
     if (isDelivery() && cust.address.trim().length < 3) { e.preventDefault(); hint.textContent = 'Please add your delivery address or area.'; hint.classList.add('err'); addrIn.focus(); return; }
     hint.classList.remove('err'); hint.textContent = 'WhatsApp is opening. Send the message there to place your order.';
     if (site.leads?.logOrders) postLead('order', orderRecord(note.value)); // same ref twice = same order; the Sheet script skips repeats
+    if (!finishing) { finishing = true; window.setTimeout(finishOrder, 700); } // wait a moment so WhatsApp opens with the full message first
   });
 
   document.addEventListener('click', (e) => {
@@ -177,4 +198,3 @@ export function initCart() {
   onChange(render);
   render();
 }
-

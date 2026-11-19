@@ -2,6 +2,7 @@
 // The cart: a bar that appears when something is added, and a bottom-sheet with the editable list.
 // The list itself is built by src/scripts/cart.ts. Only rendered for checkout mode "whatsapp".
 import { config } from '../lib/site';
+const biz = config.business.name;
 const L = config.labels;
 const fulfil = config.scheduler.fulfilment;
 ---
@@ -52,3 +53,15 @@ const fulfil = config.scheduler.fulfilment;
   </div>
 </dialog>
 
+<dialog id="thanks-dialog" class="thanks" aria-labelledby="thanks-title">
+  <div class="thanks-card">
+    <i class="spark s1" aria-hidden="true"></i><i class="spark s2" aria-hidden="true"></i><i class="spark s3" aria-hidden="true"></i><i class="spark s4" aria-hidden="true"></i><i class="spark s5" aria-hidden="true"></i><i class="spark s6" aria-hidden="true"></i>
+    <span class="thanks-badge" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+    </span>
+    <h2 id="thanks-title">Thank you for your patronage!</h2>
+    <p>Your order is on its way to {biz}. We will confirm with you on WhatsApp shortly.</p>
+    <button type="button" class="btn" data-close>Back to the shop</button>
+    <span class="thanks-bar" aria-hidden="true"></span>
+  </div>
+</dialog>
