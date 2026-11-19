@@ -1,0 +1,16 @@
+---
+import Section from '../Section.astro';
+import Icon from '../Icon.astro';
+const { section } = Astro.props;
+---
+<Section section={section}>
+  <div class="feat-grid">
+    {section.items.map((f: { title: string; text: string; icon?: string }, i: number) => (
+      <div class="feat rv" style={`--i:${i}`}>
+        <span class="ico"><Icon name={f.icon ?? 'star'} /></span>
+        <h3>{f.title}</h3>
+        <p>{f.text}</p>
+      </div>
+    ))}
+  </div>
+</Section>

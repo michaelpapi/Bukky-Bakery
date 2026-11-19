@@ -1,0 +1,46 @@
+---
+import '../styles/base.css';
+import '../styles/dialogs.css';
+import '../styles/motion.css';
+import fredoka600 from '@fontsource/fredoka/files/fredoka-latin-600-normal.woff2?url';
+import { config, cssVars, typographyIsPlayful, assetExists } from '../lib/site';
+
+const { title, description } = Astro.props;
+const og = config.seo.ogImage && assetExists(config.seo.ogImage) ? config.seo.ogImage : undefined;
+const favicon = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="${config.brand.palette.primary}"/><text x="16" y="23" font-size="20" font-family="sans-serif" font-weight="700" text-anchor="middle" fill="#fff">${config.business.name[0]}</text></svg>`)}`;
+const saveData = config.motion.respectSaveData;
+---
+<!doctype html>
+<html lang={config.locale.split('-')[0]} data-intensity={config.motion.intensity} style={cssVars}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content={config.brand.palette.bg} />
+    <meta name="color-scheme" content="light" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    {og && <meta property="og:image" content={og} />}
+    <link rel="icon" href={favicon} />
+    {typographyIsPlayful && <link rel="preload" href={fredoka600} as="font" type="font/woff2" crossorigin />}
+    {typographyIsPlayful && (
+      <style set:html={`@font-face{font-family:'Fredoka';font-style:normal;font-weight:600;font-display:swap;src:url(${fredoka600}) format('woff2')}`} />
+    )}
+    <script is:inline define:vars={{ saveData }}>
+      var r = document.documentElement, c = navigator.connection;
+      r.classList.add('js');
+      if (saveData && c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || ''))) r.classList.add('lite');
+      // the hero intro waits for 'intro-go'. Skip it for reduced motion / data saver, and never wait more than 3 s.
+      if (r.classList.contains('lite') || matchMedia('(prefers-reduced-motion: reduce)').matches) r.classList.add('intro-go');
+      else setTimeout(function () { r.classList.add('intro-go'); }, 3000);
+    </script>
+  </head>
+  <body>
+    <slot />
+    <script>
+      import '../scripts/app';
+    </script>
+  </body>
+</html>

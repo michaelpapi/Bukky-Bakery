@@ -1,0 +1,11 @@
+---
+import Section from '../Section.astro';
+import Cta from '../Cta.astro';
+const { section } = Astro.props;
+---
+<Section section={section}>
+  <div class="band rv">
+    <h2>{section.headline}</h2>
+    <Cta cta={section.button} />
+  </div>
+</Section>

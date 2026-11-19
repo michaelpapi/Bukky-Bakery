@@ -1,0 +1,15 @@
+---
+// Shared wrapper: id, background tone, reveal style, optional heading.
+import { config } from '../lib/site';
+const { section, class: cls = '', bleed = false } = Astro.props;
+const tone = section.tone ?? 'default';
+const reveal = section.reveal ?? config.motion.reveal;
+---
+<section id={section.id ?? section.type} class:list={['sec', `sec-${section.type}`, `tone-${tone}`, cls]} data-reveal={reveal}>
+  {bleed ? <slot /> : (
+    <div class="wrap">
+      {section.heading && <h2 class="rv">{section.heading}</h2>}
+      <slot />
+    </div>
+  )}
+</section>

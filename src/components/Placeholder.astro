@@ -1,0 +1,101 @@
+---
+// Flat SVG stand-ins drawn until the real renders exist. Fixed colours so they read on any tile colour.
+const { kind = 'cake', label = '', class: cls = '' } = Astro.props;
+const wide = kind === 'photo';
+---
+<svg
+  class={`ph ${cls}`}
+  viewBox={wide ? '0 0 400 300' : '0 0 200 200'}
+  width={wide ? 400 : 200}
+  height={wide ? 300 : 200}
+  preserveAspectRatio={wide ? 'xMidYMid slice' : 'xMidYMid meet'}
+  role={label ? 'img' : undefined}
+  aria-label={label || undefined}
+  aria-hidden={label ? undefined : 'true'}
+>
+  {kind === 'cake' && (
+    <g>
+      <rect x="36" y="118" width="128" height="50" rx="16" fill="#ff8fb3" />
+      <rect x="36" y="118" width="128" height="13" rx="6.5" fill="#fff8ea" />
+      <rect x="54" y="80" width="92" height="42" rx="14" fill="#f2b84b" />
+      <rect x="54" y="80" width="92" height="12" rx="6" fill="#fff8ea" />
+      <rect x="72" y="48" width="56" height="36" rx="12" fill="#b28cf5" />
+      <rect x="72" y="48" width="56" height="10" rx="5" fill="#fff8ea" />
+      <circle cx="100" cy="38" r="10" fill="#d90429" />
+      <path d="M100 28q6-10 14-10" stroke="#7a3e1d" stroke-width="3" fill="none" stroke-linecap="round" />
+      <g fill="#fff8ea"><rect x="48" y="146" width="10" height="4" rx="2" transform="rotate(-20 53 148)" /><rect x="86" y="152" width="10" height="4" rx="2" transform="rotate(25 91 154)" /><rect x="128" y="144" width="10" height="4" rx="2" transform="rotate(-35 133 146)" /></g>
+    </g>
+  )}
+  {kind === 'chops' && (
+    <g>
+      <rect x="24" y="112" width="152" height="52" rx="14" fill="#c98d4a" />
+      <circle cx="58" cy="106" r="22" fill="#f2b84b" />
+      <circle cx="104" cy="98" r="24" fill="#e0a03a" />
+      <circle cx="146" cy="106" r="22" fill="#f2b84b" />
+      <path d="M72 100l24-30 24 30z" fill="#d9893b" />
+      <rect x="40" y="70" width="60" height="9" rx="4.5" fill="#fff8ea" transform="rotate(-24 70 74)" />
+      <circle cx="50" cy="98" r="4" fill="#fff8ea" /><circle cx="112" cy="90" r="4" fill="#fff8ea" /><circle cx="150" cy="100" r="4" fill="#fff8ea" />
+    </g>
+  )}
+  {kind === 'bread' && (
+    <g>
+      <rect x="22" y="92" width="156" height="66" rx="32" fill="#d99a4e" />
+      <path d="M58 108l16 20M92 106l16 20M126 108l16 20" stroke="#f6d9a6" stroke-width="7" stroke-linecap="round" />
+      <rect x="130" y="62" width="44" height="52" rx="10" fill="#fff1d6" transform="rotate(12 152 88)" />
+      <rect x="130" y="62" width="44" height="9" rx="4.5" fill="#d99a4e" transform="rotate(12 152 88)" />
+    </g>
+  )}
+  {kind === 'pie' && (
+    <g>
+      <path d="M24 142a76 76 0 0 1 152 0z" fill="#e0a03a" />
+      <path d="M24 142h152" stroke="#c98d4a" stroke-width="9" stroke-linecap="round" stroke-dasharray="1 13" />
+      <path d="M56 112q44-34 88 0" stroke="#f6d9a6" stroke-width="7" fill="none" stroke-linecap="round" />
+      <circle cx="132" cy="120" r="10" fill="#7a3e1d" />
+    </g>
+  )}
+  {kind === 'photo' && (
+    <g>
+      <rect width="400" height="300" fill="#ffb347" />
+      <circle cx="300" cy="70" r="96" fill="#ffd27a" />
+      <rect x="40" y="206" width="320" height="26" rx="12" fill="#8d8da0" />
+      <circle cx="104" cy="186" r="28" fill="#f2b84b" /><circle cx="170" cy="178" r="30" fill="#e0a03a" />
+      <circle cx="238" cy="178" r="30" fill="#f2b84b" /><circle cx="302" cy="186" r="28" fill="#e0a03a" />
+    </g>
+  )}
+  {kind === 'cherry' && (
+    <g>
+      <path d="M70 120C80 70 110 40 140 28M130 118C128 76 134 50 140 28" stroke="#7a3e1d" stroke-width="7" fill="none" stroke-linecap="round" />
+      <circle cx="68" cy="134" r="34" fill="#d90429" /><circle cx="132" cy="134" r="34" fill="#c1121f" />
+      <ellipse cx="56" cy="122" rx="9" ry="6" fill="#fff" opacity=".6" /><ellipse cx="120" cy="122" rx="9" ry="6" fill="#fff" opacity=".6" />
+    </g>
+  )}
+  {kind === 'sprinkles' && (
+    <g stroke-linecap="round" stroke-width="12">
+      <path d="M40 60l22-12" stroke="#ff8fb3" /><path d="M110 40l8 24" stroke="#f2b84b" /><path d="M150 80l22 10" stroke="#b28cf5" />
+      <path d="M60 110l24 8" stroke="#fff8ea" /><path d="M120 120l20-14" stroke="#ff8a3d" /><path d="M50 160l10-22" stroke="#b28cf5" /><path d="M110 160l24 6" stroke="#ff8fb3" />
+    </g>
+  )}
+  {kind === 'cupcake' && (
+    <g>
+      <path d="M52 108h96l-12 62H64z" fill="#6c3ce0" />
+      <path d="M44 110c-4-34 30-44 56-44s60 10 56 44z" fill="#ff8fb3" />
+      <path d="M70 76c10-26 50-26 60 0z" fill="#ffb3cb" />
+      <circle cx="100" cy="46" r="11" fill="#d90429" />
+    </g>
+  )}
+  {kind === 'donut' && (
+    <g>
+      <path fill-rule="evenodd" d="M100 30a70 70 0 1 0 0.1 0zM100 80a20 20 0 1 1-0.1 0z" fill="#ff8fb3" />
+      <g stroke-linecap="round" stroke-width="7"><path d="M50 70l12-6" stroke="#fff8ea" /><path d="M138 62l12 8" stroke="#f2b84b" /><path d="M146 126l10-10" stroke="#b28cf5" /><path d="M54 128l12 6" stroke="#f2b84b" /><path d="M96 38l2 12" stroke="#b28cf5" /></g>
+    </g>
+  )}
+  {kind === 'whisk' && (
+    <g>
+      <rect x="88" y="120" width="24" height="68" rx="12" fill="#6c3ce0" />
+      <ellipse cx="100" cy="68" rx="34" ry="52" fill="none" stroke="#b9b9c9" stroke-width="7" />
+      <ellipse cx="100" cy="68" rx="14" ry="52" fill="none" stroke="#b9b9c9" stroke-width="7" />
+      <path d="M100 16v104" stroke="#b9b9c9" stroke-width="7" />
+    </g>
+  )}
+  {kind === 'dot' && <circle cx="100" cy="100" r="60" fill="#f2b84b" />}
+</svg>

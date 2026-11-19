@@ -1,0 +1,21 @@
+---
+import Section from '../Section.astro';
+import ProductCard from '../ProductCard.astro';
+import { products, config, warnOnce } from '../../lib/site';
+
+const { section } = Astro.props;
+if (section.layout === 'bulk' || section.layout === 'list') warnOnce(`products layout "${section.layout}" is not built yet, using the card grid`);
+const list = section.limit ? products.slice(0, section.limit) : products;
+const cats = section.filterByCategory ? [...new Set(list.map((p) => p.category).filter(Boolean))] : [];
+---
+<Section section={section}>
+  {cats.length > 1 && (
+    <div class="chips" role="group" aria-label="Filter">
+      <button type="button" class="chip" data-filter="" aria-pressed="true">{config.labels.all}</button>
+      {cats.map((c) => <button type="button" class="chip" data-filter={c} aria-pressed="false">{c}</button>)}
+    </div>
+  )}
+  <div class="grid">
+    {list.map((p, i) => <ProductCard product={p} index={i} showPrice={section.showPrices} />)}
+  </div>
+</Section>

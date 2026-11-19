@@ -1,0 +1,17 @@
+---
+import Section from '../Section.astro';
+const { section } = Astro.props;
+// four copies: a -25% shift loops seamlessly and stays full-width on screens up to ~3x one copy
+const copies = [0, 1, 2, 3];
+---
+<Section section={section} bleed>
+  <div class="marquee">
+    <div class="track">
+      {copies.map((c) => (
+        <ul aria-hidden={c > 0 ? 'true' : undefined}>
+          {section.items.map((item: string) => <li>{item}<span class="gem" aria-hidden="true"></span></li>)}
+        </ul>
+      ))}
+    </div>
+  </div>
+</Section>

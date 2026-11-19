@@ -1,0 +1,83 @@
+---
+import { config, assetExists, warnOnce } from '../../lib/site';
+import Media from '../Media.astro';
+import Placeholder from '../Placeholder.astro';
+import Cta from '../Cta.astro';
+import Shapes from '../Shapes.astro';
+import Stickers from '../Stickers.astro';
+
+const { section } = Astro.props;
+const words: string[] = section.headline.split(' ');
+const logo = config.brand.logo;
+const productsId = config.sections.find((s) => s.type === 'products')?.id ?? 'products';
+const hasProducts = config.sections.some((s) => s.type === 'products');
+
+// The falling-cake intro needs every piece file. If one is missing we fall back to a single image or a drawing.
+const pieces = section.pieces ?? [];
+const usePieces = pieces.length > 0 && pieces.every((p: { src: string }) => assetExists(p.src));
+if (pieces.length > 0 && !usePieces) warnOnce('hero pieces: some files are missing in public/images, showing a single image instead (run npm run assets)');
+
+// sprinkles that rain onto the piece flagged `sprinkles`; fixed positions, so the build is stable
+const sprinkleColours = ['#ffffff', 'var(--accent)', 'var(--secondary)', '#ffffff', 'var(--surface)'];
+const sprinkles = Array.from({ length: 18 }, (_, i) => ({
+  x: 14 + ((i * 37) % 72), y: 6 + ((i * 23) % 26), r: ((i * 53) % 180) - 90, c: sprinkleColours[i % 5], d: ((i * 41) % 60) / 100,
+}));
+const cakeAlt = section.media?.alt ?? 'A tiered celebration cake';
+---
+<section id="top" class="sec hero tone-default" data-hero={config.motion.hero} data-reveal="none">
+  <Shapes />
+  <div class="wrap hero-grid">
+    <div class="topbar">
+      <a class="brand" href="#top" aria-label={`${config.business.name}, back to top`}>
+        {assetExists(logo.src)
+          ? <img src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} />
+          : <span class="brandmark">{config.business.name}</span>}
+      </a>
+      {hasProducts && <a class="btn small" href={`#${productsId}`}>{config.labels.orderItem}</a>}
+    </div>
+
+    <div class="head">
+      <h1>{words.map((w, i) => (<><span class="w" style={`--i:${i}`}>{w}</span>{' '}</>))}</h1>
+      {section.subheadline && <p class="sub">{section.subheadline}</p>}
+      <div class="actions">
+        <Cta cta={section.cta} />
+        {section.secondaryCta && <Cta cta={section.secondaryCta} ghost />}
+      </div>
+      {section.badges.length > 0 && <ul class="badges">{section.badges.map((b: string) => <li>{b}</li>)}</ul>}
+    </div>
+
+    <div class="stage" data-stage>
+      <span class="blob" aria-hidden="true"></span>
+      <span class="blob b2" aria-hidden="true"></span>
+      <span class="blob b3" aria-hidden="true"></span>
+      {usePieces ? (
+        <div class="cake" data-cake role="img" aria-label={cakeAlt}>
+          <span class="gshadow" aria-hidden="true"></span>
+          <div class="stack">
+            {pieces.map((p: any, i: number) => (
+              <span class="piece" data-piece={p.name} style={`--i:${i};--w:${p.w}%;--ov:${p.overlap}%;--depth:${p.depth}`}>
+                <img src={p.src} alt="" decoding="async" draggable="false" fetchpriority={i < 2 ? 'high' : undefined} />
+                {p.sprinkles && (
+                  <span class="sprinkles" aria-hidden="true">
+                    {sprinkles.map((s) => <i style={`--x:${s.x}%;--y:${s.y}%;--r:${s.r}deg;--c:${s.c};--d:${s.d}s`}></i>)}
+                  </span>
+                )}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : section.media ? (
+        <>
+          <Media media={section.media} ph="cake" eager class="cutout" />
+          <span class="gshadow" aria-hidden="true"></span>
+        </>
+      ) : (
+        <>
+          <Placeholder kind="cake" label={cakeAlt} class="cutout" />
+          <span class="gshadow" aria-hidden="true"></span>
+        </>
+      )}
+      <Stickers />
+    </div>
+  </div>
+</section>

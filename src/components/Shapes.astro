@@ -1,0 +1,11 @@
+---
+// Decorative colour shapes drawn with CSS only (zero image bytes).
+import { config } from '../lib/site';
+---
+{config.brand.shapes === 'blobs' && (
+  <div class="shapes" aria-hidden="true">
+    <span class="shape s1"></span>
+    <span class="shape s2"></span>
+    <span class="shape s3"></span>
+  </div>
+)}

@@ -1,0 +1,35 @@
+---
+import Section from '../Section.astro';
+import { config, waLink, telLink } from '../../lib/site';
+const { section } = Astro.props;
+const c = config.contact;
+const wa = waLink();
+const tel = telLink();
+// Map link: use the one in client.json if there is one, otherwise build a free Google Maps search from the address (no key, no sign-up)
+const mapHref = c.mapUrl ?? (c.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${c.address}, ${config.business.city ?? ''}`.replace(/, $/, ''))}` : undefined);
+const socials = Object.entries(c.social).filter(([, v]) => !!v) as [string, string][];
+---
+<Section section={section} class="contact">
+  <h2 class="rv">{config.business.name}</h2>
+  <div class="contact-grid rv">
+    {(c.address || mapHref) && (
+      <div>
+        <h3>Visit</h3>
+        {c.address && <p>{c.address}</p>}
+        {mapHref && section.showMapLink && <a class="link" href={mapHref} target="_blank" rel="noopener">Open in Maps</a>}
+      </div>
+    )}
+    {c.hours.length > 0 && (
+      <div>
+        <h3>Hours</h3>
+        <ul class="hours">{c.hours.map((h) => <li><span>{h.days}</span><span>{h.time}</span></li>)}</ul>
+      </div>
+    )}
+    <div class="actions">
+      {wa && <a class="btn" href={wa} target="_blank" rel="noopener">{config.labels.order}</a>}
+      {tel && <a class="btn ghost" href={tel}>{config.labels.call}</a>}
+      {socials.map(([name, url]) => <a class="btn ghost" href={url} target="_blank" rel="noopener">{name[0].toUpperCase() + name.slice(1)}</a>)}
+    </div>
+  </div>
+  <p class="fine">© {new Date().getFullYear()} {config.business.name}</p>
+</Section>

@@ -1,0 +1,25 @@
+# ---- dependencies and build output (Netlify rebuilds these) ----
+node_modules/
+dist/
+.astro/
+
+# ---- machine and editor junk ----
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+.vscode/
+.idea/
+
+# ---- raw AI renders and videos: large, and only the processed files in clients/<slug>/public are needed ----
+intake/
+*.mp4
+*.mov
+*.webm
+
+# ---- not part of the Bukky Bakes site ----
+_archive/
+clients/bright-stars-academy/
+worlds/school/
+public/models/

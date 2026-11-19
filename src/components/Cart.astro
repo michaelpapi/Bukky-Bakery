@@ -1,0 +1,54 @@
+---
+// The cart: a bar that appears when something is added, and a bottom-sheet with the editable list.
+// The list itself is built by src/scripts/cart.ts. Only rendered for checkout mode "whatsapp".
+import { config } from '../lib/site';
+const L = config.labels;
+const fulfil = config.scheduler.fulfilment;
+---
+<div id="cart-bar" class="cart-bar" data-open="false">
+  <button type="button" class="cart-open" data-cart-open aria-haspopup="dialog">
+    <span class="cart-ico" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 13H6z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg>
+      <b class="cart-badge" data-count>0</b>
+    </span>
+    <span class="cart-sum"><strong>{L.cart}</strong><span data-total></span></span>
+    <span class="btn" aria-hidden="true">{L.viewOrder}</span>
+  </button>
+</div>
+
+<dialog id="cart-dialog" class="sheet" aria-labelledby="cart-title">
+  <div class="sheet-head">
+    <h2 id="cart-title">{L.cart}</h2>
+    <button type="button" class="x" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button>
+  </div>
+  <div class="sheet-scroll">
+    <ul class="cart-list" data-list></ul>
+    <p class="cart-empty" data-empty hidden>{L.emptyCart}</p>
+    <div class="cart-form" data-notewrap>
+      <label class="field"><span>Your name</span>
+        <input type="text" data-name autocomplete="name" maxlength="60" placeholder="Your name" />
+      </label>
+      <fieldset class="chips-group">
+        <legend>Pickup or delivery?</legend>
+        {fulfil.map((f: string, i: number) => (
+          <label class="chip-radio"><input type="radio" class="sr" name="cart-fulfil" value={f} checked={i === 0} data-fulfil /><span>{f === 'pickup' ? 'Pickup' : 'Delivery'}</span></label>
+        ))}
+      </fieldset>
+      <label class="field" data-addrwrap hidden><span>Delivery address or area</span>
+        <input type="text" data-address autocomplete="street-address" maxlength="120" placeholder="e.g. 5 Adeniran Ogunsanya St, Surulere" />
+      </label>
+      <label class="field"><span>Note for the shop (optional)</span>
+        <textarea data-note rows="2" maxlength="200" placeholder="Date needed, message on the cake..."></textarea>
+      </label>
+    </div>
+  </div>
+  <div class="sheet-foot" data-foot>
+    <p class="sched-hint" data-hint role="status"></p>
+    <div class="cart-total"><span>Total</span><strong data-sum></strong></div>
+    <a class="btn wide" data-send href="#" target="_blank" rel="noopener">{L.sendOrder}</a>
+    <button type="button" class="linkbtn" data-clear>Clear order</button>
+  </div>
+</dialog>
+

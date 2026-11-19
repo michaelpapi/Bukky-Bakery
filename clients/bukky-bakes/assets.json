@@ -1,0 +1,24 @@
+{
+  "assets": [
+    {"in": "hero-stand", "out": "images/hero-stand.webp", "kind": "piece", "width": 660, "maxKB": 26},
+    {"in": "hero-tier-1", "out": "images/hero-tier-1.webp", "kind": "piece", "width": 560, "maxKB": 30},
+    {"in": "hero-tier-2", "out": "images/hero-tier-2.webp", "kind": "piece", "width": 420, "maxKB": 24},
+    {"in": "hero-tier-3", "out": "images/hero-tier-3.webp", "kind": "piece", "width": 300, "maxKB": 18},
+    {"in": "hero-cherry", "out": "images/hero-cherry.webp", "kind": "piece", "width": 150, "maxKB": 6},
+    {"in": "p-vanilla", "out": "images/p-vanilla.webp", "kind": "cutout", "width": 600, "height": 600, "maxKB": 45},
+    {"in": "p-choco", "out": "images/p-choco.webp", "kind": "cutout", "width": 600, "height": 600, "maxKB": 45},
+    {"in": "p-chops", "out": "images/p-chops.webp", "kind": "cutout", "width": 600, "height": 600, "maxKB": 45},
+    {"in": "p-bread", "out": "images/p-bread.webp", "kind": "cutout", "width": 600, "height": 600, "maxKB": 45},
+    {"in": "p-pie", "out": "images/p-pie.webp", "kind": "cutout", "width": 600, "height": 600, "maxKB": 45},
+    {"in": "p-wedding", "out": "images/p-wedding.webp", "kind": "cutout", "width": 600, "height": 600, "maxKB": 45},
+    {"in": "spin-vanilla", "out": "images/spin/vanilla-{nn}.webp", "kind": "spin", "frames": 16, "width": 480, "height": 480, "maxKB": 16},
+    {"in": "spin-chops", "out": "images/spin/chops-{nn}.webp", "kind": "spin", "frames": 16, "width": 480, "height": 480, "maxKB": 16},
+    {"in": "logo", "out": "images/logo.webp", "kind": "logo", "width": 360, "maxKB": 16},
+    {"in": "story-oven", "out": "images/story-oven.webp", "kind": "photo", "width": 800, "height": 600, "maxKB": 60},
+    {"in": "s-cherry", "out": "images/s-cherry.webp", "kind": "sticker", "width": 160, "height": 160, "maxKB": 8},
+    {"in": "s-sprinkles", "out": "images/s-sprinkles.webp", "kind": "sticker", "width": 160, "height": 160, "maxKB": 8},
+    {"in": "s-cupcake", "out": "images/s-cupcake.webp", "kind": "sticker", "width": 160, "height": 160, "maxKB": 8},
+    {"in": "s-donut", "out": "images/s-donut.webp", "kind": "sticker", "width": 160, "height": 160, "maxKB": 8},
+    {"in": "s-whisk", "out": "images/s-whisk.webp", "kind": "sticker", "width": 160, "height": 160, "maxKB": 8}
+  ]
+}

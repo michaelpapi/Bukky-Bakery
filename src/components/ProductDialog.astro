@@ -1,0 +1,13 @@
+---
+// Empty shell. src/scripts/product.ts fills it when a customer taps a product card.
+---
+<dialog id="product-dialog" class="sheet product" aria-labelledby="pd-title">
+  <div class="sheet-head">
+    <h2 id="pd-title" class="sr">Product details</h2>
+    <button type="button" class="x" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+    </button>
+  </div>
+  <div class="sheet-scroll" data-body></div>
+  <div class="sheet-foot" data-foot></div>
+</dialog>

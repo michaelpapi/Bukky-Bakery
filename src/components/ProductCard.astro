@@ -1,0 +1,50 @@
+---
+import Media from './Media.astro';
+import { config, money, waLink, orderMessage, placeholderKind } from '../lib/site';
+
+const { product: p, index = 0, showPrice = true } = Astro.props;
+const tints = ['primary', 'accent', 'secondary', 'surface'];
+const tint = p.tint ?? tints[index % tints.length];
+const soldOut = !p.available || p.badge === 'sold-out';
+const note = p.priceNote ?? '';
+const priced = !p.rxOnly && p.price !== undefined;
+const priceText = p.rxOnly ? 'Prescription only' : priced ? money(p.price) : 'Price on request';
+const mode = config.checkout.mode;
+const L = config.labels;
+const quote = waLink(`Hello ${config.business.name}, I would like a quote for: ${p.name}`);
+const direct = waLink(orderMessage(`1 × ${p.name}${note ? ` (${note})` : ''}`));
+const badges: Record<string, string> = { new: 'New', popular: 'Popular', sale: 'Sale', limited: 'Limited', 'sold-out': 'Sold out' };
+---
+<article class="rv card-wrap" data-cat={p.category ?? ''} style={`--i:${index}`}>
+  <div class:list={['card', `tint-${tint}`, { soldout: soldOut }]}>
+    <button type="button" class="card-open" data-product={p.id} aria-label={`${p.name}: see details`}></button>
+    <div class="stage">
+      <Media media={p.image} ph={placeholderKind(p)} class="cutout" />
+      <span class="gshadow" aria-hidden="true"></span>
+      {p.badge && <span class="badge">{badges[p.badge]}</span>}
+    </div>
+    <div class="body">
+      {p.category && <p class="cat">{p.category}</p>}
+      <h3>{p.name}</h3>
+      <p class="blurb">{p.blurb}</p>
+      {p.options.map((o: { label: string; values: string[] }) => <p class="opt">{o.label}: {o.values.join(' · ')}</p>)}
+      <div class="row">
+        {showPrice && <p class="price">{priceText}{priced && note && <small>{note}</small>}</p>}
+        {soldOut ? (
+          <button type="button" class="btn" disabled>Sold out</button>
+        ) : p.rxOnly || (!priced && quote) ? (
+          quote && <a class="btn" href={quote} target="_blank" rel="noopener">{L.enquire}</a>
+        ) : mode === 'whatsapp' && direct ? (
+          <>
+            <a class="btn order-link" href={direct} target="_blank" rel="noopener">{L.orderItem}</a>
+            <button type="button" class="btn add" data-add data-id={p.id}>{L.add}</button>
+          </>
+        ) : mode === 'payment-link' && p.payLink ? (
+          <a class="btn" href={p.payLink} target="_blank" rel="noopener">{L.orderItem}</a>
+        ) : quote ? (
+          <a class="btn" href={quote} target="_blank" rel="noopener">{L.enquire}</a>
+        ) : null}
+      </div>
+    </div>
+  </div>
+</article>

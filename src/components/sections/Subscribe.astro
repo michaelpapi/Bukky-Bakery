@@ -1,0 +1,40 @@
+---
+// "Stay in touch" sign-up. The form is handled by src/scripts/subscribe.ts and saved to the client's Google Sheet.
+// The follow buttons come from contact.social in client.json.
+import Section from '../Section.astro';
+import { config } from '../../lib/site';
+const { section } = Astro.props;
+const socials = Object.entries(config.contact.social).filter(([, v]) => !!v) as [string, string][];
+const consent = section.consentText.replace('{business}', config.business.name);
+---
+<Section section={section} class="subscribe">
+  {section.intro && <p class="sub-intro rv">{section.intro}</p>}
+  <form class="sub-form rv" data-subscribe novalidate>
+    <label class="field"><span>Your name <small>(optional)</small></span>
+      <input type="text" name="name" autocomplete="name" maxlength="60" placeholder="Your name" />
+    </label>
+    <label class="field"><span>Email</span>
+      <input type="email" name="email" autocomplete="email" inputmode="email" maxlength="120" placeholder="you@example.com" />
+    </label>
+    <label class="field"><span>Phone number</span>
+      <input type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="0801 234 5678" />
+    </label>
+    <p class="sub-hint">Add your email, your phone number, or both.</p>
+    <label class="consent">
+      <input type="checkbox" name="consent" />
+      <span>{consent}</span>
+    </label>
+    <div class="trap" aria-hidden="true"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+    <p class="sub-msg" role="status" aria-live="polite" data-msg></p>
+    <button type="submit" class="btn wide">{section.button}</button>
+  </form>
+  <p class="sub-done" data-sub-done hidden role="status" tabindex="-1">{section.successMessage}</p>
+  {socials.length > 0 && (
+    <div class="follow rv">
+      <h3>{section.followHeading}</h3>
+      <div class="actions">
+        {socials.map(([name, url]) => <a class="btn ghost" href={url} target="_blank" rel="noopener">{name[0].toUpperCase() + name.slice(1)}</a>)}
+      </div>
+    </div>
+  )}
+</Section>

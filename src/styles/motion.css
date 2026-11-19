@@ -1,0 +1,99 @@
+/* All motion: transform / opacity / clip-path only, CSS only, no libraries.
+   Intensity sets a few numbers; presets in client.json choose which keyframes run. */
+:root { --rise: 20px; --pop-from: .9; --float: 8px; --dur: .6s; --ease: cubic-bezier(.23, 1, .32, 1); }
+[data-intensity='calm'] { --rise: 12px; --pop-from: .96; --float: 4px; --dur: .5s; }
+[data-intensity='loud'] { --rise: 32px; --pop-from: .78; --float: 14px; --dur: .7s; }
+
+/* keyframes use `from` only, so without animation support the page is simply fully visible */
+@keyframes rise { from { opacity: 0; transform: translateY(var(--rise)); } }
+@keyframes pop { from { opacity: 0; transform: scale(var(--pop-from)); } }
+@keyframes unmask { from { clip-path: inset(100% 0 0 0); } }
+@keyframes word-in { from { opacity: 0; transform: translateY(.6em); } }
+@keyframes drift { to { transform: translateX(-25%); } }
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(var(--r0)); } 50% { transform: translateY(calc(var(--float) * -1)) rotate(var(--r1)); } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-4deg) scale(1.04); } 75% { transform: rotate(4deg) scale(1.04); } }
+@keyframes parallax { to { transform: translateY(var(--shift, 40px)); } }
+@keyframes gradient { to { background-position: 100% 50%; } }
+
+/* ---------- hero on load ---------- */
+.hero[data-hero='rise'] .head > *,
+.hero[data-hero='rise'] .stage { animation: rise var(--dur) var(--ease) backwards; }
+.hero[data-hero='rise'] .head > :nth-child(2) { animation-delay: 80ms; }
+.hero[data-hero='rise'] .head > :nth-child(3) { animation-delay: 160ms; }
+.hero[data-hero='rise'] .stage { animation-delay: 120ms; }
+
+.hero[data-hero='pop'] .w { animation: pop var(--dur) var(--ease) backwards; animation-delay: calc(var(--i) * 70ms); }
+.hero[data-hero='pop'] .head > :not(h1) { animation: rise var(--dur) var(--ease) backwards; animation-delay: 300ms; }
+.hero[data-hero='pop'] .blob { animation: pop calc(var(--dur) + .1s) var(--ease) backwards; }
+.hero[data-hero='pop'] .blob.b2 { animation-delay: 100ms; }
+.hero[data-hero='pop'] .blob.b3 { animation-delay: 180ms; }
+.hero[data-hero='pop'] .cutout { animation: pop calc(var(--dur) + .2s) var(--ease) 200ms backwards; }
+
+.hero[data-hero='mask-reveal'] .cutout,
+.hero[data-hero='mask-reveal'] .blob { animation: unmask .8s var(--ease) backwards; }
+.hero[data-hero='mask-reveal'] .head > * { animation: rise var(--dur) var(--ease) backwards; }
+
+.hero[data-hero='split-words'] .w { animation: word-in var(--dur) var(--ease) backwards; animation-delay: calc(var(--i) * 80ms); }
+.hero[data-hero='split-words'] .head > :not(h1),
+.hero[data-hero='split-words'] .stage { animation: rise var(--dur) var(--ease) 250ms backwards; }
+
+/* ---------- hero intro (about 3 s): stand, tiers and cherry fall and stack, sprinkles rain, stickers drop in ---------- */
+@keyframes drop {
+  0%   { transform: translateY(calc(var(--fall) * -1)) rotate(var(--tilt, -4deg)); animation-timing-function: cubic-bezier(.55, 0, .9, .55); } /* speeds up like gravity */
+  62%  { transform: translateY(0) scale(1.05, .92); animation-timing-function: ease-out; }                                                  /* lands and squashes */
+  80%  { transform: translateY(-2.5%) scale(.99, 1.02); animation-timing-function: ease-in; }                                                /* small bounce */
+  100% { transform: none; }
+}
+@keyframes flake { from { transform: translateY(-420%) rotate(240deg); opacity: 0; } 30% { opacity: 1; } }
+@keyframes fade-in { from { opacity: 0; } }
+.js:not(.intro-go) .hero .piece, .js:not(.intro-go) .hero .sticker, .js:not(.intro-go) .hero .sprinkles i, .js:not(.intro-go) .hero .cake .gshadow { visibility: hidden; }
+.intro-go .hero .piece { --fall: 85svh; animation: drop .85s linear backwards; animation-delay: calc(.05s + var(--i) * .42s); }
+.intro-go .hero .piece:nth-child(odd) { --tilt: 5deg; }
+.intro-go .hero .sprinkles i { animation: flake .55s ease-in backwards; animation-delay: calc(2.1s + var(--d)); }
+.intro-go .hero .cake .gshadow { animation: fade-in .5s ease-out .4s backwards; }
+.intro-go .hero .sticker .drop { --fall: 90svh; animation: drop .8s linear backwards; animation-delay: calc(.6s + var(--k) * .3s); }
+
+/* ---------- ambient ---------- */
+/* each sticker sets its own --dur (6-9s), --dl (negative delay) and --r0/--r1 rotations inline */
+.stickers .sticker { animation: float var(--dur) ease-in-out var(--dl) infinite; }
+.track { animation: drift 22s linear infinite; }
+
+/* ---------- hover (only on devices that really hover, so taps never "stick") ---------- */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0, 0, 0, .2); }
+  .btn:active { transform: translateY(3px) scale(.97); }
+  .card .cutout { transition: transform 260ms var(--ease); }
+  .card:hover .cutout { transform: translateY(-6px) scale(1.04) rotate(-2deg); }
+  .card .gshadow { transition: transform 260ms var(--ease), opacity 260ms ease-out; }
+  .card:hover .gshadow { transform: scale(.85); opacity: .7; }
+  [data-hover='wiggle'] .card:hover .cutout { animation: wiggle 420ms var(--ease); transform: none; }
+}
+
+/* ---------- scroll reveals: progressive enhancement ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    [data-reveal] .rv { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 45%; }
+    [data-reveal='pop'] .rv { animation-name: pop; }
+    [data-reveal='wipe'] .rv { animation-name: unmask; }
+    [data-reveal='stagger'] .rv { animation-range: entry calc(min(var(--i, 0), 5) * 6%) entry calc(45% + min(var(--i, 0), 5) * 6%); }
+    [data-reveal='none'] .rv { animation: none; }
+    [data-hero='parallax-layers'] .blob { animation: parallax linear both; animation-timeline: scroll(); animation-range: 0 100svh; }
+    [data-hero='parallax-layers'] .blob.b2 { --shift: 80px; }
+    [data-hero='parallax-layers'] .cutout { animation: parallax linear both; animation-timeline: scroll(); animation-range: 0 100svh; --shift: 20px; }
+  }
+}
+
+/* ---------- reduced motion: keep gentle fades, remove movement ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root, [data-intensity] { --rise: 0px; --pop-from: 1; --float: 0px; }
+  .track, .stickers .sticker { animation: none; }
+  .hero .piece, .hero .sticker .drop, .hero .sprinkles i, .hero .cake .gshadow { animation: none !important; }
+  .hero[data-hero='mask-reveal'] .cutout, .hero[data-hero='mask-reveal'] .blob { animation: none; }
+  .card:hover .cutout, .btn:hover { transform: none; }
+  html { scroll-behavior: auto; }
+}
+
+/* ---------- data saver / slow connection ---------- */
+.lite *, .lite *::before, .lite *::after { animation: none !important; transition: none !important; }
+.lite .stickers { display: none; }
+.lite .cake { transform: none; }

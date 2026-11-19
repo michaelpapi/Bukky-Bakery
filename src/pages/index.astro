@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import Cart from '../components/Cart.astro';
+import ProductDialog from '../components/ProductDialog.astro';
+import SchedulerDialog from '../components/SchedulerDialog.astro';
+import Hero from '../components/sections/Hero.astro';
+import Marquee from '../components/sections/Marquee.astro';
+import Story from '../components/sections/Story.astro';
+import Products from '../components/sections/Products.astro';
+import Features from '../components/sections/Features.astro';
+import Faq from '../components/sections/Faq.astro';
+import CtaBand from '../components/sections/CtaBand.astro';
+import Subscribe from '../components/sections/Subscribe.astro';
+import Contact from '../components/sections/Contact.astro';
+import { config, warnOnce, cartEnabled, hasProducts, hasSchedule, siteDataJson } from '../lib/site';
+
+// section type -> component. Types not listed here are skipped with a build warning (school sections come later).
+const registry: Record<string, any> = {
+  hero: Hero, marquee: Marquee, story: Story, products: Products,
+  features: Features, faq: Faq, 'cta-band': CtaBand, subscribe: Subscribe, contact: Contact,
+};
+const sections = config.sections.filter((s) => {
+  if (s.enabled === false) return false;
+  if (registry[s.type]) return true;
+  warnOnce(`section type "${s.type}" is not built yet, skipped`);
+  return false;
+});
+const title = `${config.business.name} | ${config.business.tagline}`;
+---
+<Base title={title} description={config.business.description}>
+  <main>
+    {sections.map((s) => {
+      const C = registry[s.type];
+      return <C section={s} />;
+    })}
+  </main>
+  {cartEnabled && <Cart />}
+  {hasProducts && <ProductDialog />}
+  {hasSchedule && <SchedulerDialog />}
+  <script is:inline type="application/json" id="site-data" set:html={siteDataJson}></script>
+</Base>/// <reference types="astro/client" />/// <reference types="astro/client" />/// <reference types="astro/client" />

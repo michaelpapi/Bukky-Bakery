@@ -1,0 +1,21 @@
+{
+  "world": "food",
+  "brand": { "typography": "playful", "shapes": "blobs" },
+  "checkout": { "mode": "whatsapp" },
+  "motion": {
+    "intensity": "loud",
+    "pageTransition": "wipe",
+    "hero": "pop",
+    "reveal": "pop",
+    "ambient": "floaters",
+    "hover": "wiggle"
+  },
+  "labels": { "order": "Order on WhatsApp", "enquire": "Ask a question" },
+  "sectionDefaults": {
+    "hero": { "layout": "split" },
+    "products": { "layout": "menu", "filterByCategory": true },
+    "marquee": { "tone": "primary" },
+    "cta-band": { "tone": "accent" }
+  },
+  "requiredSections": ["hero", "products", "contact"]
+}

@@ -1,0 +1,9 @@
+---
+import { ctaHref } from '../lib/site';
+const { cta, ghost = false } = Astro.props;
+const href = ctaHref(cta);
+const external = cta.action === 'whatsapp';
+---
+{href && (
+  <a class:list={['btn', { ghost }]} href={href} target={external || cta.action === 'schedule' ? '_blank' : undefined} rel={external || cta.action === 'schedule' ? 'noopener' : undefined} data-open={cta.action === 'schedule' ? 'schedule' : undefined}>{cta.label}</a>
+)}
