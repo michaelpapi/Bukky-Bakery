@@ -69,6 +69,13 @@
   [data-hover='wiggle'] .card:hover .cutout { animation: wiggle 420ms var(--ease); transform: none; }
 }
 
+/* touch: phones have no hover, so app.ts adds .lift to the card while a finger is on it (same look as the mouse hover) */
+.card .cutout { transition: transform 260ms var(--ease); }
+.card .gshadow { transition: transform 260ms var(--ease), opacity 260ms ease-out; }
+.card.lift .cutout { transform: translateY(-6px) scale(1.04) rotate(-2deg); }
+.card.lift .gshadow { transform: scale(.85); opacity: .7; }
+[data-hover='wiggle'] .card.lift .cutout { animation: wiggle 420ms var(--ease); transform: none; }
+
 /* ---------- scroll reveals: progressive enhancement ---------- */
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
@@ -89,7 +96,7 @@
   .track, .stickers .sticker { animation: none; }
   .hero .piece, .hero .sticker .drop, .hero .sprinkles i, .hero .cake .gshadow { animation: none !important; }
   .hero[data-hero='mask-reveal'] .cutout, .hero[data-hero='mask-reveal'] .blob { animation: none; }
-  .card:hover .cutout, .btn:hover { transform: none; }
+  .card:hover .cutout, .card.lift .cutout, .btn:hover { transform: none; }
   html { scroll-behavior: auto; }
 }
 

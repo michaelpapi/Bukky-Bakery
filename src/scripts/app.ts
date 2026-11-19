@@ -16,6 +16,30 @@ chips.forEach((chip) => {
   });
 });
 
+// touch "hover": a finger has no hover, so lift the product while it is pressed (the mouse uses CSS :hover)
+let held: HTMLElement | null = null;
+let liftTimer = 0;
+let dropTimer = 0;
+const dropLift = (now: boolean) => {
+  clearTimeout(liftTimer);
+  const c = held;
+  held = null;
+  if (!c) return;
+  if (now) c.classList.remove('lift');
+  else { clearTimeout(dropTimer); dropTimer = window.setTimeout(() => c.classList.remove('lift'), 380); } // a quick tap still shows the lift
+};
+document.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse') return;
+  const card = (e.target as Element).closest<HTMLElement>('.card');
+  if (!card) return;
+  clearTimeout(dropTimer);
+  held?.classList.remove('lift');
+  held = card;
+  liftTimer = window.setTimeout(() => card.classList.add('lift'), 70); // short wait so a scroll flick does not make cards jump
+});
+document.addEventListener('pointerup', () => dropLift(false));
+document.addEventListener('pointercancel', () => dropLift(true)); // the browser started scrolling: let go
+
 // subscribe form (only on pages that have one)
 if (document.querySelector('[data-subscribe]')) import('./subscribe');
 
