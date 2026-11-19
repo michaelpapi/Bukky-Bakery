@@ -247,7 +247,7 @@ export function initCart() {
     if (contact && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact) && (digits.length < 7 || digits.length > 15)) { fail('That phone number or email does not look right. Fix it, or leave it empty.'); whyContact.focus(); return; }
     cust.contact = contact; saveCust();
     const rec = readPending()?.rec ?? orderRecord('');
-    postLead('issue', { ref: rec.ref, customer: rec.customer, fulfilment: rec.fulfilment, address: rec.address, items: rec.items, total: rec.total, contact, reason, message, at: new Date().toISOString() });
+    postLead('issue', { sid: Math.random().toString(36).slice(2, 10) + Date.now().toString(36), ref: rec.ref, customer: rec.customer, fulfilment: rec.fulfilment, address: rec.address, items: rec.items, total: rec.total, contact, reason, message, at: new Date().toISOString() });
     writePending(null);
     step('sorry');
   });
@@ -276,4 +276,3 @@ export function initCart() {
   onChange(render);
   render();
 }
-
